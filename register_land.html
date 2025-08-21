@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Land - Land Registry Blockchain</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-home"></i>
+                <span>Land Registry Blockchain</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}" class="nav-link">Dashboard</a></li>
+                <li><a href="{{ url_for('register_land') }}" class="nav-link active">Register Land</a></li>
+                <li><a href="{{ url_for('transfer_land') }}" class="nav-link">Transfer Land</a></li>
+                <li><a href="{{ url_for('view_all_lands') }}" class="nav-link">View Records</a></li>
+                <li><a href="{{ url_for('view_blockchain') }}" class="nav-link">Blockchain</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fas fa-plus-circle"></i> Register New Land</h1>
+            <p>Add a new land parcel to the blockchain registry</p>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <i class="fas fa-info-circle"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="form-container">
+            <form method="POST" class="registration-form">
+                <div class="form-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Land Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="land_id">Land ID *</label>
+                        <input type="text" id="land_id" name="land_id" required 
+                               placeholder="e.g., LAND001, PLOT-123-A">
+                        <small>Unique identifier for the land parcel</small>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="area">Area (sq ft) *</label>
+                            <input type="number" id="area" name="area" required 
+                                   placeholder="e.g., 1000">
+                        </div>
+                        <div class="form-group">
+                            <label for="land_type">Land Type *</label>
+                            <select id="land_type" name="land_type" required>
+                                <option value="">Select Type</option>
+                                <option value="residential">Residential</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="agricultural">Agricultural</option>
+                                <option value="industrial">Industrial</option>
+                                <option value="vacant">Vacant Land</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location *</label>
+                        <input type="text" id="location" name="location" required 
+                               placeholder="e.g., 123 Main Street, City, State">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="survey_number">Survey Number</label>
+                        <input type="text" id="survey_number" name="survey_number" 
+                               placeholder="e.g., SY-123/2024">
+                        <small>Official survey number if available</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Owner Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="owner_name">Owner Name *</label>
+                        <input type="text" id="owner_name" name="owner_name" required 
+                               placeholder="e.g., John Doe">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="owner_address">Owner Address *</label>
+                        <textarea id="owner_address" name="owner_address" required 
+                                  placeholder="Complete address of the owner" rows="3"></textarea>
+                        <small>This will be used as the blockchain address</small>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-file-alt"></i> Additional Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" 
+                                  placeholder="Additional details about the land..." rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Register Land on Blockchain
+                    </button>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Information Panel -->
+        <div class="info-panel">
+            <h3><i class="fas fa-info-circle"></i> Registration Process</h3>
+            <div class="process-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h4>Fill Form</h4>
+                        <p>Complete all required land and owner information</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h4>Blockchain Transaction</h4>
+                        <p>Data is recorded as a transaction on the blockchain</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h4>Mining & Verification</h4>
+                        <p>Transaction is mined and permanently recorded</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h4>Registration Complete</h4>
+                        <p>Land is now officially registered and immutable</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Land Registry Blockchain System. Built with Flask & Blockchain Technology.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
