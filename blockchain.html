@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain - Land Registry Blockchain</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-home"></i>
+                <span>Land Registry Blockchain</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}" class="nav-link">Dashboard</a></li>
+                <li><a href="{{ url_for('register_land') }}" class="nav-link">Register Land</a></li>
+                <li><a href="{{ url_for('transfer_land') }}" class="nav-link">Transfer Land</a></li>
+                <li><a href="{{ url_for('view_all_lands') }}" class="nav-link">View Records</a></li>
+                <li><a href="{{ url_for('view_blockchain') }}" class="nav-link active">Blockchain</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="page-header">
+            <h1><i class="fas fa-link"></i> Blockchain Explorer</h1>
+            <p>View the complete blockchain structure and transactions</p>
+        </header>
+
+        <!-- Blockchain Statistics -->
+        <div class="blockchain-stats">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.total_blocks }}</h3>
+                        <p>Total Blocks</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.total_transactions }}</h3>
+                        <p>Total Transactions</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>
+                            {% if stats.blockchain_valid %}
+                                <span class="text-success">Valid</span>
+                            {% else %}
+                                <span class="text-error">Invalid</span>
+                            {% endif %}
+                        </h3>
+                        <p>Blockchain Status</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ stats.total_lands_registered }}</h3>
+                        <p>Lands Registered</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Blockchain Integrity Check -->
+        <div class="integrity-section">
+            <div class="integrity-card">
+                <h3><i class="fas fa-shield-check"></i> Blockchain Integrity</h3>
+                <div class="integrity-status">
+                    {% if stats.blockchain_valid %}
+                        <div class="status-indicator success">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Blockchain is valid and secure</span>
+                        </div>
+                        <p>All blocks are properly linked and hash values are correct.</p>
+                    {% else %}
+                        <div class="status-indicator error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>Blockchain integrity compromised</span>
+                        </div>
+                        <p>One or more blocks have been tampered with or corrupted.</p>
+                    {% endif %}
+                </div>
+                <button id="verify-btn" class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i>
+                    Re-verify Blockchain
+                </button>
+            </div>
+        </div>
+
+        <!-- Transaction Filter -->
+        <div class="filter-section">
+            <div class="filter-controls">
+                <select id="transaction-filter">
+                    <option value="all">All Transactions</option>
+                    <option value="register">Land Registrations</option>
+                    <option value="transfer">Land Transfers</option>
+                    <option value="mining_reward">Mining Rewards</option>
+                </select>
+                <input type="text" id="search-transactions" placeholder="Search transactions...">
+            </div>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="transactions-section">
+            <h3><i class="fas fa-list"></i> All Transactions</h3>
+            {% if transactions %}
+            <div class="transactions-container">
+                {% for transaction in transactions %}
+                <div class="transaction-card" data-type="{{ transaction.transaction_type }}">
+                    <div class="transaction-header">
+                        <div class="transaction-type">
+                            {% if transaction.transaction_type == 'register' %}
+                                <i class="fas fa-plus-circle text-success"></i>
+                                <span class="type-label success">Registration</span>
+                            {% elif transaction.transaction_type == 'transfer' %}
+                                <i class="fas fa-exchange-alt text-primary"></i>
+                                <span class="type-label primary">Transfer</span>
+                            {% elif transaction.transaction_type == 'mining_reward' %}
+                                <i class="fas fa-coins text-warning"></i>
+                                <span class="type-label warning">Mining Reward</span>
+                            {% else %}
+                                <i class="fas fa-circle text-secondary"></i>
+                                <span class="type-label secondary">{{ transaction.transaction_type|title }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="transaction-meta">
+                            <span class="block-info">Block #{{ transaction.block_index }}</span>
+                            <span class="timestamp">{{ transaction.timestamp[:19] }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-body">
+                        <div class="transaction-flow">
+                            <div class="address-box from">
+                                <label>From</label>
+                                <span>{{ transaction.from_address or 'SYSTEM' }}</span>
+                            </div>
+                            <div class="flow-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="address-box to">
+                                <label>To</label>
+                                <span>{{ transaction.to_address }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if transaction.land_id %}
+                        <div class="land-info">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Land ID: <strong>{{ transaction.land_id }}</strong></span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if transaction.details %}
+                        <div class="transaction-details">
+                            <button class="details-toggle" onclick="toggleDetails(this)">
+                                <i class="fas fa-chevron-down"></i>
+                                Show Details
+                            </button>
+                            <div class="details-content" style="display: none;">
+                                {% for key, value in transaction.details.items() %}
+                                {% if key != 'land_details' %}
+                                <div class="detail-item">
+                                    <span class="detail-key">{{ key|replace('_', ' ')|title }}:</span>
+                                    <span class="detail-value">{{ value }}</span>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                
+                                {% if transaction.details.land_details %}
+                                <div class="land-details-section">
+                                    <h5>Land Details:</h5>
+                                    {% for key, value in transaction.details.land_details.items() %}
+                                    <div class="detail-item">
+                                        <span class="detail-key">{{ key|replace('_', ' ')|title }}:</span>
+                                        <span class="detail-value">{{ value }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="transaction-footer">
+                        <div class="hash-info">
+                            <label>Block Hash:</label>
+                            <span class="hash-value" title="{{ transaction.block_hash }}">
+                                {{ transaction.block_hash[:32] }}...
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h3>No Transactions Found</h3>
+                <p>The blockchain is empty. Start by registering some land parcels.</p>
+                <a href="{{ url_for('register_land') }}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i>
+                    Register First Land
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 Land Registry Blockchain System. Built with Flask & Blockchain Technology.</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        // Toggle transaction details
+        function toggleDetails(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.className = 'fas fa-chevron-up';
+                button.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Details';
+            } else {
+                content.style.display = 'none';
+                icon.className = 'fas fa-chevron-down';
+                button.innerHTML = '<i class="fas fa-chevron-down"></i> Show Details';
+            }
+        }
+
+        // Filter transactions
+        document.getElementById('transaction-filter').addEventListener('change', function() {
+            const filterValue = this.value;
+            const transactions = document.querySelectorAll('.transaction-card');
+            
+            transactions.forEach(transaction => {
+                if (filterValue === 'all' || transaction.dataset.type === filterValue) {
+                    transaction.style.display = 'block';
+                } else {
+                    transaction.style.display = 'none';
+                }
+            });
+        });
+
+        // Search transactions
+        document.getElementById('search-transactions').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const transactions = document.querySelectorAll('.transaction-card');
+            
+            transactions.forEach(transaction => {
+                const text = transaction.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    transaction.style.display = 'block';
+                } else {
+                    transaction.style.display = 'none';
+                }
+            });
+        });
+
+        // Verify blockchain
+        document.getElementById('verify-btn').addEventListener('click', function() {
+            const btn = this;
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            btn.disabled = true;
+            
+            fetch('/api/verify')
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    if (!data.valid) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error verifying blockchain');
+                })
+                .finally(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+        });
+
+        // Copy hash on click
+        document.querySelectorAll('.hash-value').forEach(element => {
+            element.addEventListener('click', function() {
+                const fullHash = this.title;
+                navigator.clipboard.writeText(fullHash).then(() => {
+                    const originalText = this.textContent;
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                });
+            });
+            element.style.cursor = 'pointer';
+        });
+    </script>
+</body>
+</html>
